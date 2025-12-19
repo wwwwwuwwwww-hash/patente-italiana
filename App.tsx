@@ -30,6 +30,7 @@ const App: React.FC = () => {
   const [showAiExplanation, setShowAiExplanation] = useState(false);
   const [aiText, setAiText] = useState("");
   const [loadingAi, setLoadingAi] = useState(false);
+  const [shareToast, setShareToast] = useState<{show: boolean, msg: string}>({show: false, msg: ""});
 
   useEffect(() => {
     const savedVocab = localStorage.getItem('patente_vocab_v2');
@@ -57,13 +58,10 @@ const App: React.FC = () => {
   }, [stats]);
 
   const fireConfetti = () => {
-    // 全屏礼花增强效果
     const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
     const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
     const interval: any = setInterval(function() {
       const timeLeft = animationEnd - Date.now();
       if (timeLeft <= 0) return clearInterval(interval);
@@ -111,6 +109,18 @@ const App: React.FC = () => {
       const updatedWord = updateWordProgress(quiz.currentWord, isCorrect ? 5 : 0);
       setVocabulary(prev => prev.map(w => w.id === updatedWord.id ? updatedWord : w));
     }
+  };
+
+  const copyUrl = () => {
+    const url = window.location.href;
+    if (url.startsWith('blob:')) {
+      setShareToast({show: true, msg: "检测到临时链接，请使用 GitHub Pages 部署后的网址分享。"});
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        setShareToast({show: true, msg: "正式链接已复制！请在 Safari 中打开并添加至主屏幕。"});
+      });
+    }
+    setTimeout(() => setShareToast({show: false, msg: ""}), 3000);
   };
 
   const handleAddCustomWord = (e: React.FormEvent) => {
@@ -276,8 +286,16 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col items-center pt-12 px-4">
-      <header className="w-full max-w-4xl mb-12 flex flex-col items-center text-center gap-6">
+    <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col items-center pt-12 px-4 relative">
+      <header className="w-full max-w-4xl mb-12 flex flex-col items-center text-center gap-6 relative">
+        <button 
+           onClick={copyUrl}
+           className="absolute right-0 top-0 p-3 bg-slate-900 border border-slate-800 rounded-2xl text-slate-500 active:scale-90 transition-all group"
+           title="分享正式地址"
+        >
+          <svg className="w-5 h-5 group-hover:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+        </button>
+
         <div>
           <h1 className="text-4xl font-black tracking-tighter mb-1">
             PATENTE <span className="text-indigo-500 italic">PRO</span>
@@ -298,6 +316,13 @@ const App: React.FC = () => {
       </header>
 
       {view === 'HOME' ? renderHome() : renderQuiz()}
+
+      {/* Share Toast */}
+      {shareToast.show && (
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-8 py-4 rounded-3xl font-bold text-sm shadow-2xl z-[300] animate-in fade-in slide-in-from-top-4 max-w-[80vw] text-center">
+          {shareToast.msg}
+        </div>
+      )}
 
       {/* Manual Add Modal */}
       {showAddModal && (

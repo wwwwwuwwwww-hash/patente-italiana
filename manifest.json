@@ -3,8 +3,10 @@
   "name": "Patente PRO 意大利驾照单词",
   "short_name": "PatentePRO",
   "description": "智能记忆曲线背单词，助力通过意大利驾照考试。",
-  "start_url": ".",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#020617",
   "theme_color": "#020617",
   "icons": [
@@ -13,6 +15,11 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/741/741407.png",
+      "sizes": "192x192",
+      "type": "image/png"
     }
   ]
 }
